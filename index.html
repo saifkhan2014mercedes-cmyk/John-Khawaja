@@ -3,18 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal AI</title>
+    <title>Personal Voice AI</title>
     <style>
         body {
-            background-color: lightblue;
+            background-color: #87CEEB; /* Soft Sky Blue */
             font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             text-align: center;
-            padding-top: 50px;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+        }
+
+        /* Voice Status Pulse Indicator */
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .mic-btn.listening {
+            background-color: #f44336;
+            box-shadow: 0 0 25px rgba(244, 67, 54, 0.8);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to My Website</h1>
-    <p>This is my personal AI interface.</p>
+
+    <div class="container">
+        <h1>Personal AI</h1>
+        <button id="start-btn" class="mic-btn">🎙️</button>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        
+        // Check for Web Speech API browser support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            startBtn.addEventListener('click', () => {
+                recognition.start();
+                startBtn.classList.add('listening');
+            });
+
+            recognition.onresult = (event) => {
+                startBtn.classList.remove('listening');
+                const userSpeech = event.results[0][0].transcript;
+                
+                // Process input and speak response back without showing on screen
+                respondToUser(userSpeech);
+            };
+
+            recognition.onerror = () => {
+                startBtn.classList.remove('listening');
+            };
+
+            recognition.onend = () => {
+                startBtn.classList.remove('listening');
+            };
+        } else {
+            alert("Speech recognition is not supported in this browser. Please use Chrome, Safari, or Edge.");
+        }
+
+        function respondToUser(input) {
+            const utterance = new SpeechSynthesisUtterance();
+            const text = input.toLowerCase();
+
+            // Simple conversational voice logic
+            if (text.includes("hello") || text.includes("hi")) {
+                utterance.text = "Hello! How can I help you today?";
+            } else if (text.includes("who are you")) {
+                utterance.text = "I am your personal AI assistant.";
+            } else {
+                utterance.text = "I heard you say " + input + ". How else can I assist you?";
+            }
+
+            // Speak the response out loud
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+
 </body>
 </html>
